@@ -1,81 +1,67 @@
 import React, { useEffect, useState } from "react";
-import { fetchCustomertData } from "../../../services/api";
-import ApexCharts from "react-apexcharts";
+import { fetchCustomerDashboardQuantityForGenderData } from "../../../services/api-customer";
+import Chart from "react-apexcharts";
 
-const CustomerGenderChart = () => {
-  const [clients, setClients] = useState([]);
+const CustomerGenderChart = ({}) => {
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [dadosGenero, setDadosGenero] = useState(null);
 
   useEffect(() => {
-    const getClients = async () => {
+    const getData = async () => {
       try {
-        const response = await fetchCustomertData();
-        setClients(response.data);
-
-        const genderCounts = {};
-
-        response.data.forEach((client) => {
-          const gender = client.gender || "Desconhecido";
-          if (genderCounts[gender]) {
-            genderCounts[gender] += 1;
-          } else {
-            genderCounts[gender] = 1;
-          }
-        });
-
-        const chartData = {
-          labels: Object.keys(genderCounts), // Gêneros
-          series: Object.values(genderCounts), // Quantidade
-        };
-
-        setDadosGenero(chartData);
+        const response = await fetchCustomerDashboardQuantityForGenderData();
+        setData(response.data);
       } catch (err) {
         setError("Erro ao buscar dados dos clientes.");
       } finally {
         setLoading(false);
       }
     };
-
-    getClients();
+    getData();
   }, []);
 
-  if (loading) return <p>Carregando...</p>;
-  if (error) return <p>{error}</p>;
+  const series = data.map((item) => item.quantity);
 
-  const options = {
+  const categories = data.map((item) => item.gender);
+
+  var optionDonut = {
     chart: {
       type: "donut",
+      width: "100%",
       height: 400,
     },
-    labels: dadosGenero?.labels || [],
-    theme: {
-      palette: "palette1",
+    dataLabels: {
+      enabled: false,
+    },
+    plotOptions: {
+      pie: {
+        customScale: 0.8,
+        donut: {
+          size: "75%",
+        },
+        offsetY: 20,
+      },
+      stroke: {
+        colors: undefined,
+      },
     },
     title: {
-      text: "Clientes por genero",
-      align: "center",
+      text: "Clientes por Genero",
       style: {
         fontSize: "18px",
       },
     },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "55%",
-        },
-      },
-    },
-    dataLabels: {
-      style: {
-        fontSize: "12px",
-      },
-    },
+
+    labels: categories,
     legend: {
       position: "left",
+      offsetY: 80,
     },
   };
+
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div
@@ -90,16 +76,13 @@ const CustomerGenderChart = () => {
         textAlign: "center",
       }}
     >
-      {dadosGenero && dadosGenero.series.length > 0 ? (
-        <ApexCharts
-          options={options}
-          series={dadosGenero.series}
-          type="donut"
-          height={250}
-        />
-      ) : (
-        <p>Sem dados para exibir.</p>
-      )}
+      <Chart
+        options={optionDonut}
+        type="donut"
+        series={series}
+        width={300}
+        height={300}
+      />
     </div>
   );
 };

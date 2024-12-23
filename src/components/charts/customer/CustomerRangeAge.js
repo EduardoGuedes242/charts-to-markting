@@ -1,21 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
+import { fetchCustomerDashboardQuantityForAgeData } from "../../../services/api-customer";
 
 const CustomerRangeAge = ({}) => {
-  var series = [
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const response = await fetchCustomerDashboardQuantityForAgeData();
+        setData(response.data);
+      } catch (err) {
+        setError("Erro ao buscar dados dos clientes.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    getData();
+  }, []);
+
+ 
+  const series = [
     {
       name: "Idade",
-      data: [42, 52, 16, 55, 59, 51, 45, 32, 26, 33, 44, 51, 42, 80],
+      data: data.map(item => item.age),  
     },
   ];
 
-  var optionsBar = {
+  const categories = data.map(item => item.quantity);  
+
+  const optionsBar = {
     plotOptions: {
       bar: {
         columnWidth: "80%",
       },
     },
-    
+    xaxis: {
+      categories: categories,  // Definindo as categorias do eixo X (idades)
+    },
     yaxis: {
       axisBorder: {
         show: false,
@@ -38,12 +62,24 @@ const CustomerRangeAge = ({}) => {
     },
   };
 
+  if (loading) return <div>Carregando...</div>;
+  if (error) return <div>{error}</div>;
+
   return (
-    <>
-      <div>
-        <Chart options={optionsBar} type="bar" series={series} width={300} height={300} />
-      </div>
-    </>
+    <div
+    style={{
+      border: "1px solid #e0e0e0",
+      borderRadius: "8px",
+      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+      padding: "16px",
+      backgroundColor: "#fff",
+      width: "300px",
+      margin: "16px auto",
+      textAlign: "center",
+    }}
+  >
+      <Chart options={optionsBar} type="bar" series={series} width={300} height={300} />
+    </div>
   );
 };
 
