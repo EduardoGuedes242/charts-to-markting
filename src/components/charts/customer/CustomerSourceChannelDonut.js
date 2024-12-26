@@ -47,7 +47,7 @@ const CustomerSourceChannelDonut = ({}) => {
       },
     },
     title: {
-      text: "Clientes por Genero",
+      text: "Customer origin",
       style: {
         fontSize: "18px",
       },

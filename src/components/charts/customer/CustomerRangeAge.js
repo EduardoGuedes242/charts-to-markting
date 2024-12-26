@@ -54,7 +54,7 @@ const CustomerRangeAge = ({}) => {
       },
     },
     title: {
-      text: "Clientes por Idade",
+      text: "Customers by age",
       align: "left",
       style: {
         fontSize: "18px",

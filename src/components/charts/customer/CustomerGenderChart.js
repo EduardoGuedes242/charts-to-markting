@@ -47,7 +47,7 @@ const CustomerGenderChart = ({}) => {
       },
     },
     title: {
-      text: "Clientes por Genero",
+      text: "Customers by gender",
       style: {
         fontSize: "18px",
       },
